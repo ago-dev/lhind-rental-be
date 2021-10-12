@@ -1,0 +1,19 @@
+application:
+  jwt:
+    secretKey: securekeysecurekeysecurekeysecurekeysecurekeysecurekeysecurekeysecurekey
+    tokenExpirationAfterDays: 7
+    tokenPrefix: 'Bearer '
+spring:
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    username: postgres
+    password: postgres
+    url: jdbc:postgresql://localhost:5432/lhind-rental
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQL81Dialect
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
+      show-sql: true
