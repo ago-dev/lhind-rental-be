@@ -17,7 +17,7 @@ public class Role extends BaseEntity<Short>{
 
     @ManyToMany
     @JoinTable(name = "roles_privileges",
-            joinColumns        = @JoinColumn(name = "privilege_id", referencedColumnName = "id"),
-            inverseJoinColumns = @JoinColumn(name = "role_id",      referencedColumnName = "id"))
+            joinColumns        = @JoinColumn(name = "role_id", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name = "privilege_id", referencedColumnName = "id"))
     private List<Privilege> privileges;
 }
