@@ -1,10 +1,12 @@
-package com.dago.service.user;
+package com.dago.service.user.impl;
 
 import com.dago.domain.Role;
 import com.dago.domain.User;
 import com.dago.persistence.RoleRepository;
 import com.dago.persistence.UserRepository;
 import com.dago.service.exception.ResourceNotFoundException;
+import com.dago.service.user.UserMapper;
+import com.dago.service.user.UserService;
 import com.dago.service.user.dto.req.UserSaveDto;
 import com.dago.service.user.dto.res.UserDto;
 import com.dago.service.user.enums.UserRole;
@@ -50,11 +52,15 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto updateUser(UserSaveDto userDto) {
-        if (!userRepository.existsById(userDto.getId()))
-            throw new ResourceNotFoundException("User does not exist!");
+        User userToUpdate = userRepository.findById(userDto.getId()).orElseThrow(
+                ()-> new ResourceNotFoundException("User does not exist!"));
 
-        User updatedUser = userRepository.save(mapper.toEntity(userDto));
-        return mapper.toDto(updatedUser);
+        userToUpdate.setUsername(userDto.getUsername());
+        userToUpdate.setEmail(userDto.getEmail());
+        userToUpdate.setFirstName(userDto.getFirstName());
+        userToUpdate.setLastName(userDto.getLastName());
+
+        return mapper.toDto(userRepository.save(userToUpdate));
     }
 
     @Override

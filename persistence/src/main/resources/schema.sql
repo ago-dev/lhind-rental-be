@@ -214,3 +214,15 @@ ALTER COLUMN from_date TYPE date;
 
 ALTER TABLE public.rent_application
 ALTER COLUMN to_date TYPE date;
+
+CREATE TABLE public.password_reset_token
+(
+    id integer NOT NULL GENERATED ALWAYS AS IDENTITY,
+    token character varying NOT NULL,
+    user_id integer NOT NULL,
+    expiry_date timestamp without time zone NOT NULL,
+    PRIMARY KEY (id)
+);
+
+ALTER TABLE public.password_reset_token
+    OWNER to postgres;

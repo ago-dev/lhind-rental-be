@@ -3,6 +3,9 @@ application:
     secretKey: securekeysecurekeysecurekeysecurekeysecurekeysecurekeysecurekeysecurekey
     tokenExpirationAfterDays: 7
     tokenPrefix: 'Bearer '
+  mailSender:
+    username: "agodevis98@gmail.com"
+    password: "iamwhitehatagodevis9898"
 spring:
   datasource:
     driver-class-name: org.postgresql.Driver

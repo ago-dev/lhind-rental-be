@@ -11,4 +11,6 @@ public interface RentApplicationService {
     void updateRentApplication(RentApplicationUpdateReqDto dto);
     Page<RentApplicationResDto> listApplications(Pageable pageable);
     void deleteApplication(Integer id);
+    Page<RentApplicationResDto> listAllPendingApplications(Pageable pageable);
+
 }

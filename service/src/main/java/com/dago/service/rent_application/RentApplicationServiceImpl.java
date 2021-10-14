@@ -15,6 +15,7 @@ import com.dago.service.rent_application.dto.req.RentApplicationReqDto;
 import com.dago.service.rent_application.dto.req.RentApplicationUpdateReqDto;
 import com.dago.service.rent_application.dto.res.RentApplicationResDto;
 import com.dago.service.rent_application.enums.RentApplicationStatusEnum;
+import com.dago.service.user.enums.UserRole;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.data.domain.Page;
@@ -94,6 +95,19 @@ public class RentApplicationServiceImpl implements RentApplicationService {
         }
 
         rentApplicationRepository.delete(rentApplication);
+    }
+
+    @Override
+    public Page<RentApplicationResDto> listAllPendingApplications(Pageable pageable) {
+        User loggedUser = retrieveCurrentUserEntity();
+        if(!loggedUser.getRole().getName().equals(UserRole.ADMIN.returnValue())){
+            throw new UserNotAuthorizedException();
+        }
+        RentApplicationStatus status = rentApplicationStatusRepository.findByName(RentApplicationStatusEnum.PENDING.returnValue())
+                .orElseThrow(() -> new ResourceNotFoundException("Status not found!"));
+        Page<RentApplication> applicationsPage = rentApplicationRepository.findAllByRentApplicationStatus(status, pageable);
+        List<RentApplicationResDto> applicationDtos = rentApplicationMapper.toDtos(applicationsPage.getContent());
+        return new PageImpl<>(applicationDtos, pageable, applicationsPage.getTotalElements());
     }
 
     private User retrieveCurrentUserEntity() {

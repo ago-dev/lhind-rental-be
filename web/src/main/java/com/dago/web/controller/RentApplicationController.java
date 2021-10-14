@@ -41,4 +41,11 @@ public class RentApplicationController {
         rentApplicationService.deleteApplication(id);
         return ResponseEntity.ok().build();
     }
+
+    @GetMapping("/list/pending")
+    public ResponseEntity<Page<RentApplicationResDto>> listPendingApplications(@RequestParam(defaultValue = "1") int pageNo,
+                                                                        @RequestParam(defaultValue = "10") int pageSize) {
+        return ResponseEntity.ok().body(rentApplicationService.listAllPendingApplications(PageRequest.of(pageNo - 1, pageSize)));
+    }
+
 }
