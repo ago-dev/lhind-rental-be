@@ -4,8 +4,8 @@ application:
     tokenExpirationAfterDays: 7
     tokenPrefix: 'Bearer '
   mailSender:
-    username: "agodevis98@gmail.com"
-    password: "iamwhitehatagodevis9898"
+    username: ""
+    password: ""
 spring:
   datasource:
     driver-class-name: org.postgresql.Driver

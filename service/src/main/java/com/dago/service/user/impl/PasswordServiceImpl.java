@@ -29,7 +29,6 @@ public class PasswordServiceImpl implements PasswordService {
     private final JavaMailSender mailSender;
     private final PasswordEncoder passwordEncoder;
 
-    @Async
     @Override
     public void requestResetPassword(String email) {
         User user = userRepository.findByEmail(email)

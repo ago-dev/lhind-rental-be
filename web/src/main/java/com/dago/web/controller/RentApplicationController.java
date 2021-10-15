@@ -19,33 +19,43 @@ public class RentApplicationController {
     private final RentApplicationService rentApplicationService;
 
     @GetMapping("/list")
+    //    @PreAuthorize("hasAnyAuthority('APPLICATION_READ')")
     public ResponseEntity<Page<RentApplicationResDto>> listApplications(@RequestParam(defaultValue = "1") int pageNo,
                                                                         @RequestParam(defaultValue = "10") int pageSize) {
         return ResponseEntity.ok().body(rentApplicationService.listApplications(PageRequest.of(pageNo - 1, pageSize)));
     }
 
     @PostMapping
+    //    @PreAuthorize("hasAnyAuthority('APPLICATION_WRITE')")
     public ResponseEntity<Void> createApplication(@Valid @RequestBody RentApplicationReqDto dto) {
         rentApplicationService.createRentApplication(dto);
         return ResponseEntity.ok().build();
     }
 
     @PutMapping
+    //    @PreAuthorize("hasAnyAuthority('APPLICATION_WRITE')")
     public ResponseEntity<Void> updateApplication(@Valid @RequestBody RentApplicationUpdateReqDto dto) {
         rentApplicationService.updateRentApplication(dto);
         return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("/{id}")
+    //    @PreAuthorize("hasAnyAuthority('APPLICATION_WRITE')")
     public ResponseEntity<Void> deleteApplication(@PathVariable Integer id) {
         rentApplicationService.deleteApplication(id);
         return ResponseEntity.ok().build();
     }
 
     @GetMapping("/list/pending")
+    //    @PreAuthorize("hasAnyAuthority('APPLICATION_WRITE')")
     public ResponseEntity<Page<RentApplicationResDto>> listPendingApplications(@RequestParam(defaultValue = "1") int pageNo,
                                                                         @RequestParam(defaultValue = "10") int pageSize) {
         return ResponseEntity.ok().body(rentApplicationService.listAllPendingApplications(PageRequest.of(pageNo - 1, pageSize)));
     }
 
+    @PutMapping("/pending")
+    public ResponseEntity<Void> reviewApplication(@RequestParam Integer id, @RequestParam boolean isApproved) {
+        rentApplicationService.reviewApplication(id, isApproved);
+        return ResponseEntity.ok().build();
+    }
 }

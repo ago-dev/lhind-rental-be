@@ -12,5 +12,5 @@ public interface RentApplicationService {
     Page<RentApplicationResDto> listApplications(Pageable pageable);
     void deleteApplication(Integer id);
     Page<RentApplicationResDto> listAllPendingApplications(Pageable pageable);
-
+    void reviewApplication(Integer id, boolean isApproved);
 }

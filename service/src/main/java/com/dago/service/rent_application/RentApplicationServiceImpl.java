@@ -37,9 +37,10 @@ public class RentApplicationServiceImpl implements RentApplicationService {
     private final RentApplicationStatusRepository rentApplicationStatusRepository;
     private final RentApplicationMapper rentApplicationMapper;
 
+    private static final String STATUS_NOT_FOUND = "Status not found!";
+
     @Override
     public void createRentApplication(RentApplicationReqDto dto) {
-        log.info("DTO -> {}", dto.getFromDate());
         RentApplication rentApplication = rentApplicationMapper.toEntity(dto);
         User loggedUser = retrieveCurrentUserEntity();
         rentApplication.setApplicant(loggedUser);
@@ -47,7 +48,7 @@ public class RentApplicationServiceImpl implements RentApplicationService {
                 () -> new ResourceNotFoundException("Vehicle model not found!")
         );
         RentApplicationStatus status = rentApplicationStatusRepository.findByName(RentApplicationStatusEnum.PENDING.returnValue())
-                .orElseThrow( () -> new ResourceNotFoundException("Status not found!"));
+                .orElseThrow(() -> new ResourceNotFoundException(STATUS_NOT_FOUND));
 
         rentApplication.setVehicleModel(requestedModel);
         rentApplication.setRentApplicationStatus(status);
@@ -62,7 +63,7 @@ public class RentApplicationServiceImpl implements RentApplicationService {
 
         if (!rentApplication.getApplicant().getId().equals(loggedUser.getId())) {
             throw new UserNotAuthorizedException();
-        }else {
+        } else {
             rentApplication.setFromDate(dto.getFromDate());
             rentApplication.setToDate(dto.getToDate());
         }
@@ -99,15 +100,31 @@ public class RentApplicationServiceImpl implements RentApplicationService {
 
     @Override
     public Page<RentApplicationResDto> listAllPendingApplications(Pageable pageable) {
-        User loggedUser = retrieveCurrentUserEntity();
-        if(!loggedUser.getRole().getName().equals(UserRole.ADMIN.returnValue())){
-            throw new UserNotAuthorizedException();
-        }
+        checkForAdminCompetence();
         RentApplicationStatus status = rentApplicationStatusRepository.findByName(RentApplicationStatusEnum.PENDING.returnValue())
-                .orElseThrow(() -> new ResourceNotFoundException("Status not found!"));
+                .orElseThrow(() -> new ResourceNotFoundException(STATUS_NOT_FOUND));
         Page<RentApplication> applicationsPage = rentApplicationRepository.findAllByRentApplicationStatus(status, pageable);
         List<RentApplicationResDto> applicationDtos = rentApplicationMapper.toDtos(applicationsPage.getContent());
         return new PageImpl<>(applicationDtos, pageable, applicationsPage.getTotalElements());
+    }
+
+    @Override
+    public void reviewApplication(Integer id, boolean isApproved) {
+        checkForAdminCompetence();
+        RentApplication application = rentApplicationRepository.findById(id).orElseThrow(() ->
+                new ResourceNotFoundException("Application not found!"));
+        RentApplicationStatus rentApplicationStatus = rentApplicationStatusRepository.findByName(
+                isApproved ? RentApplicationStatusEnum.APPROVED.returnValue() : RentApplicationStatusEnum.DECLINED.returnValue())
+                .orElseThrow(() -> new ResourceNotFoundException(STATUS_NOT_FOUND));
+        application.setRentApplicationStatus(rentApplicationStatus);
+        rentApplicationRepository.save(application);
+    }
+
+    private void checkForAdminCompetence() {
+        User loggedUser = retrieveCurrentUserEntity();
+        if (!loggedUser.getRole().getName().equals(UserRole.ADMIN.returnValue())) {
+            throw new UserNotAuthorizedException();
+        }
     }
 
     private User retrieveCurrentUserEntity() {
