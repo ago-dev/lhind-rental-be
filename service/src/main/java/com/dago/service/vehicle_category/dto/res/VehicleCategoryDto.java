@@ -1,6 +1,5 @@
 package com.dago.service.vehicle_category.dto.res;
 
-import com.dago.domain.VehicleModel;
 import com.dago.service.vehicle_model.dto.res.VehicleModelDto;
 import lombok.Getter;
 import lombok.Setter;

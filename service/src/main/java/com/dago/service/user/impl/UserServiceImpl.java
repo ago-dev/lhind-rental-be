@@ -51,8 +51,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserDto updateUser(UserSaveDto userDto) {
-        User userToUpdate = userRepository.findById(userDto.getId()).orElseThrow(
+    public UserDto updateUser(Long id, UserSaveDto userDto) {
+        User userToUpdate = userRepository.findById(id).orElseThrow(
                 ()-> new ResourceNotFoundException("User does not exist!"));
 
         userToUpdate.setUsername(userDto.getUsername());

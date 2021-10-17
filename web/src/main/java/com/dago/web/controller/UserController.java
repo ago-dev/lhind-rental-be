@@ -37,10 +37,10 @@ public class UserController {
         return ResponseEntity.ok().body(userService.createUser(userDto));
     }
 
-    @PutMapping
+    @PutMapping("/{id}")
 //    @PreAuthorize("hasAnyAuthority('USER_WRITE')")
-    public ResponseEntity<UserDto> updateUser(@Valid @RequestBody UserSaveDto userDto) {
-        return ResponseEntity.ok().body(userService.updateUser(userDto));
+    public ResponseEntity<UserDto> updateUser(@PathVariable Long id, @Valid @RequestBody UserSaveDto userDto) {
+        return ResponseEntity.ok().body(userService.updateUser(id, userDto));
     }
 
     @DeleteMapping("/{id}")

@@ -12,7 +12,7 @@ import com.dago.service.LoggedUser;
 import com.dago.service.exception.ResourceNotFoundException;
 import com.dago.service.exception.UserNotAuthorizedException;
 import com.dago.service.rent_application.dto.req.RentApplicationReqDto;
-import com.dago.service.rent_application.dto.req.RentApplicationUpdateReqDto;
+import com.dago.service.rent_application.dto.res.RentApplicationPendingDto;
 import com.dago.service.rent_application.dto.res.RentApplicationResDto;
 import com.dago.service.rent_application.enums.RentApplicationStatusEnum;
 import com.dago.service.user.enums.UserRole;
@@ -43,6 +43,7 @@ public class RentApplicationServiceImpl implements RentApplicationService {
     public void createRentApplication(RentApplicationReqDto dto) {
         RentApplication rentApplication = rentApplicationMapper.toEntity(dto);
         User loggedUser = retrieveCurrentUserEntity();
+        log.info("Logged user -> {}", loggedUser.getUsername());
         rentApplication.setApplicant(loggedUser);
         VehicleModel requestedModel = vehicleModelRepository.findById(dto.getVehicleModelId()).orElseThrow(
                 () -> new ResourceNotFoundException("Vehicle model not found!")
@@ -56,11 +57,11 @@ public class RentApplicationServiceImpl implements RentApplicationService {
     }
 
     @Override
-    public void updateRentApplication(RentApplicationUpdateReqDto dto) {
+    public void updateRentApplication(Integer id, RentApplicationReqDto dto) {
         User loggedUser = retrieveCurrentUserEntity();
-        RentApplication rentApplication = rentApplicationRepository.findById(dto.getId()).orElseThrow(
+        RentApplication rentApplication = rentApplicationRepository.findById(id).orElseThrow(
                 () -> new ResourceNotFoundException("Rent application not found!"));
-
+        log.info("UPDATE -> " + loggedUser.getUsername());
         if (!rentApplication.getApplicant().getId().equals(loggedUser.getId())) {
             throw new UserNotAuthorizedException();
         } else {
@@ -81,6 +82,7 @@ public class RentApplicationServiceImpl implements RentApplicationService {
     @Override
     public Page<RentApplicationResDto> listApplications(Pageable pageable) {
         User loggedUser = retrieveCurrentUserEntity();
+        log.info(loggedUser.getUsername());
         Page<RentApplication> applicationsPage = rentApplicationRepository.findAllByApplicant(loggedUser, pageable);
         List<RentApplicationResDto> applicationDtos = rentApplicationMapper.toDtos(applicationsPage.getContent());
         return new PageImpl<>(applicationDtos, pageable, applicationsPage.getTotalElements());
@@ -99,12 +101,12 @@ public class RentApplicationServiceImpl implements RentApplicationService {
     }
 
     @Override
-    public Page<RentApplicationResDto> listAllPendingApplications(Pageable pageable) {
+    public Page<RentApplicationPendingDto> listAllPendingApplications(Pageable pageable) {
         checkForAdminCompetence();
         RentApplicationStatus status = rentApplicationStatusRepository.findByName(RentApplicationStatusEnum.PENDING.returnValue())
                 .orElseThrow(() -> new ResourceNotFoundException(STATUS_NOT_FOUND));
         Page<RentApplication> applicationsPage = rentApplicationRepository.findAllByRentApplicationStatus(status, pageable);
-        List<RentApplicationResDto> applicationDtos = rentApplicationMapper.toDtos(applicationsPage.getContent());
+        List<RentApplicationPendingDto> applicationDtos = rentApplicationMapper.toPendingApplicationDtos(applicationsPage.getContent());
         return new PageImpl<>(applicationDtos, pageable, applicationsPage.getTotalElements());
     }
 
@@ -128,6 +130,7 @@ public class RentApplicationServiceImpl implements RentApplicationService {
     }
 
     private User retrieveCurrentUserEntity() {
+        log.info(LoggedUser.getUsername());
         return userRepository.findByUsername(LoggedUser.getUsername()).orElseThrow(
                 () -> new ResourceNotFoundException("User not found!")
         );
